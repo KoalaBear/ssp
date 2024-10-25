@@ -1,5 +1,6 @@
+const robot = require('robotjs');
 const SSP = require('./lib/index.js')
-const channels = [{ value: 0, country_code: 'XXX' }]
+const channels = [{value: 0, country_code: 'XXX'}]
 
 const serialPortConfig = {
   baudRate: 9600, // default: 9600
@@ -34,6 +35,21 @@ eSSP.on('CLOSE', () => {
 eSSP.on('READ_NOTE', result => {
   console.log('READ_NOTE', result)
   console.log(channels[result.channel])
+  console.log('Value:', channels[result.channel].value)
+  switch (channels[result.channel].value) { // Keypress simulation shit
+    case 20:
+      robot.keyTap('o');
+      break;
+    case 50:
+      robot.keyTap('p');
+      break;
+    case 100:
+      robot.keyTap('[');
+      break;
+    case 200:
+      robot.keyTap(']');
+      break;
+  }
 
   if (channels[result.channel].value === 500) {
     eSSP.command('REJECT_BANKNOTE')
@@ -51,7 +67,7 @@ eSSP.on('NOTE_REJECTED', result => {
 eSSP
   .open('/dev/tty.usbserial-14442140', serialPortConfig)
   .then(() => eSSP.command('SYNC'))
-  .then(() => eSSP.command('HOST_PROTOCOL_VERSION', { version: 6 }))
+  .then(() => eSSP.command('HOST_PROTOCOL_VERSION', {version: 6}))
   .then(() => eSSP.initEncryption())
   .then(() => eSSP.command('GET_SERIAL_NUMBER'))
   .then(result => {
